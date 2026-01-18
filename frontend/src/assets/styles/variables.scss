@@ -1,0 +1,36 @@
+// 白色简约主题变量定义
+
+// 主色调 - 蓝色系
+$primary-color: #1890ff;
+$primary-dark: #096dd9;
+$primary-light: #40a9ff;
+
+// 背景色
+$bg-dark: #f5f7fa;              // 浅灰背景
+$bg-card: #ffffff;              // 卡片背景（白色）
+$bg-sidebar: #ffffff;           // 侧边栏背景（白色）
+$bg-header: #ffffff;            // 顶部栏背景（白色）
+
+// 文字颜色
+$text-primary: #2c3e50;
+$text-secondary: #606266;
+$text-muted: #909399;
+
+// 边框和分割线
+$border-color: #e4e7ed;
+$divider-color: rgba(0, 0, 0, 0.06);
+
+// 状态颜色
+$success-color: #52c41a;
+$warning-color: #faad14;
+$error-color: #f5222d;
+$info-color: #1890ff;
+
+// 阴影
+$shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+$shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+$shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
+
+// 渐变
+$gradient-primary: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+$gradient-card: linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%);
