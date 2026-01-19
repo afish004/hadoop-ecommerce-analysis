@@ -11,19 +11,24 @@ html, body, #app {
   width: 100%;
   height: 100%;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background-color: $bg-dark;
+  
+  // 【修改点1】全局背景升级
+  // 使用淡雅的蓝紫渐变代替纯色背景，营造科技感氛围
+  // 如果想要深色模式，可以换成: linear-gradient(135deg, #1e2a3a 0%, #111827 100%)
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%) !important;
+  
   color: $text-primary;
   overflow: hidden;
 }
 
-// 滚动条样式
+// 滚动条样式 (保持不变，这部分写得很好)
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f0f0f0;
+  background: rgba(0, 0, 0, 0.05); // 稍微调淡一点
 }
 
 ::-webkit-scrollbar-thumb {
@@ -35,18 +40,59 @@ html, body, #app {
   }
 }
 
-// 卡片通用样式
-.card {
-  background: $bg-card;
-  border: 1px solid $border-color;
-  border-radius: 8px;
+// 【修改点2】定义入场动画关键帧
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(30px); // 从下方30px处浮出
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// 【修改点3】卡片通用样式升级（玻璃拟态）
+// 这是一个“原子类”，你可以把这个类加到任何需要卡片的地方
+// 同时我也把 .chart-card 等类名加进来了，强制统一风格
+.card, .chart-card, .metric-card, .info-card {
+  // 玻璃拟态核心属性
+  background: rgba(255, 255, 255, 0.75) !important; // 半透明背景
+  backdrop-filter: blur(20px) saturate(180%);        // 毛玻璃模糊 + 饱和度提升
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  
+  border: 1px solid rgba(255, 255, 255, 0.8) !important; // 亮色边框，模拟光照
+  border-radius: 16px !important;                        // 更圆润的圆角
+  
+  // 高级柔和投影
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07) !important;
+  
   padding: 24px;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); // 更有弹性的过渡
+  
+  // 应用入场动画
+  animation: slideUpFade 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
   
   &:hover {
-    border-color: $primary-color;
-    box-shadow: $shadow-md;
+    transform: translateY(-5px) scale(1.01); // 悬停时轻微上浮放大
+    border-color: $primary-color !important;
+    box-shadow: 0 15px 35px rgba(24, 144, 255, 0.15) !important; // 投影加深
   }
+}
+
+// 依次设置动画延迟，形成“波浪式”加载效果
+// 这会让页面看起来是一个接一个弹出来的，非常高级
+.el-row {
+  .el-col:nth-child(1) .chart-card, 
+  .el-col:nth-child(1) .metric-card { animation-delay: 0.1s; }
+  
+  .el-col:nth-child(2) .chart-card, 
+  .el-col:nth-child(2) .metric-card { animation-delay: 0.2s; }
+  
+  .el-col:nth-child(3) .chart-card, 
+  .el-col:nth-child(3) .metric-card { animation-delay: 0.3s; }
+  
+  .el-col:nth-child(4) .chart-card { animation-delay: 0.4s; }
 }
 
 // 按钮通用样式
@@ -55,14 +101,21 @@ html, body, #app {
   color: white;
   border: none;
   padding: 10px 24px;
-  border-radius: 6px;
+  border-radius: 8px; // 稍微圆润一点
   cursor: pointer;
   font-size: 14px;
+  letter-spacing: 0.5px;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(24, 144, 255, 0.3); // 增加按钮光晕
   
   &:hover {
     filter: brightness(1.1);
-    box-shadow: $shadow-sm;
+    transform: translateY(-2px); // 按钮悬停上浮
+    box-shadow: 0 6px 20px rgba(24, 144, 255, 0.4);
+  }
+  
+  &:active {
+    transform: translateY(1px);
   }
 }
 
@@ -71,47 +124,53 @@ html, body, #app {
   color: $primary-color;
   border: 1px solid $primary-color;
   padding: 10px 24px;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
   transition: all 0.3s ease;
   
   &:hover {
-    background: rgba(24, 144, 255, 0.1);
+    background: rgba(24, 144, 255, 0.08);
+    transform: translateY(-2px);
   }
 }
 
 // Element Plus 白色主题覆盖
 .el-input__wrapper {
-  background-color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.8) !important; // 输入框也半透明
   box-shadow: 0 0 0 1px $border-color inset !important;
+  border-radius: 8px !important;
   
   &:hover {
     box-shadow: 0 0 0 1px $primary-color inset !important;
+    background-color: #fff !important;
   }
   
   &.is-focus {
     box-shadow: 0 0 0 1px $primary-color inset !important;
+    background-color: #fff !important;
   }
 }
 
 .el-button--primary {
   background: $gradient-primary !important;
   border: none !important;
+  border-radius: 8px !important;
   
   &:hover {
     filter: brightness(1.1);
+    transform: translateY(-2px);
   }
 }
 
-// 统一图表配色（蓝色系）
+// 统一图表配色
 .echarts-color-palette {
-  --color-1: #1890ff;  // 蓝色
-  --color-2: #52c41a;  // 绿色
-  --color-3: #faad14;  // 橙色
-  --color-4: #13c2c2;  // 青色
-  --color-5: #722ed1;  // 紫色
-  --color-6: #eb2f96;  // 粉色
-  --color-7: #fa8c16;  // 橙红
-  --color-8: #f5222d;  // 红色
+  --color-1: #1890ff;
+  --color-2: #52c41a;
+  --color-3: #faad14;
+  --color-4: #13c2c2;
+  --color-5: #722ed1;
+  --color-6: #eb2f96;
+  --color-7: #fa8c16;
+  --color-8: #f5222d;
 }

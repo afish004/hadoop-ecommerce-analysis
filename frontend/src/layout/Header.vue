@@ -1,19 +1,27 @@
 <template>
   <div class="header">
-    <!-- 左侧：系统标题 -->
     <div class="header-left">
-      <h1 class="system-title">Hadoop电商行为分析系统</h1>
+      <el-breadcrumb separator="/">
+        <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+        <el-breadcrumb-item v-for="(item, index) in breadcrumbList" :key="index">
+          {{ item.meta.title }}
+        </el-breadcrumb-item>
+      </el-breadcrumb>
     </div>
 
-    <!-- 右侧：时间、用户信息、退出 -->
     <div class="header-right">
-      <!-- 实时时间 -->
+      <div class="icon-btn" @click="toggleFullScreen" title="全屏模式">
+        <el-icon :size="20">
+          <FullScreen v-if="!isFullScreen" />
+          <Aim v-else />
+        </el-icon>
+      </div>
+
       <div class="current-time">
         <el-icon><Clock /></el-icon>
         <span>{{ currentTime }}</span>
       </div>
 
-      <!-- 管理员信息 -->
       <el-dropdown @command="handleCommand">
         <div class="user-info">
           <el-avatar :size="32" :src="avatarUrl">
@@ -35,60 +43,59 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Clock, User, SwitchButton } from '@element-plus/icons-vue'
+import { Clock, User, SwitchButton, FullScreen, Aim } from '@element-plus/icons-vue'
 
 const router = useRouter()
+const route = useRoute()
 
-// 当前时间
-const currentTime = ref('')
-let timer = null
+// --- 面包屑逻辑 ---
+const breadcrumbList = computed(() => {
+  return route.matched.filter(item => item.meta && item.meta.title && item.path !== '/dashboard')
+})
 
-// 头像 URL（可以替换为真实头像）
-const avatarUrl = ref('')
-
-// 更新时间
-const updateTime = () => {
-  const now = new Date()
-  const year = now.getFullYear()
-  const month = String(now.getMonth() + 1).padStart(2, '0')
-  const day = String(now.getDate()).padStart(2, '0')
-  const hours = String(now.getHours()).padStart(2, '0')
-  const minutes = String(now.getMinutes()).padStart(2, '0')
-  const seconds = String(now.getSeconds()).padStart(2, '0')
-  
-  currentTime.value = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+// --- 全屏逻辑 ---
+const isFullScreen = ref(false)
+const toggleFullScreen = () => {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen()
+    isFullScreen.value = true
+  } else {
+    if (document.exitFullscreen) {
+      document.exitFullscreen()
+      isFullScreen.value = false
+    }
+  }
 }
 
-// 下拉菜单命令处理
+// --- 原有的时间与登出逻辑 ---
+const currentTime = ref('')
+const avatarUrl = ref('')
+let timer = null
+
+const updateTime = () => {
+  const now = new Date()
+  currentTime.value = now.toLocaleString('zh-CN', { hour12: false }).replace(/\//g, '-')
+}
+
 const handleCommand = (command) => {
   if (command === 'logout') {
-    // 清除登录信息
     localStorage.removeItem('token')
     localStorage.removeItem('username')
-    
     ElMessage.success('退出登录成功')
-    
-    // 跳转到登录页
     router.push('/login')
   }
 }
 
 onMounted(() => {
-  // 初始化时间
   updateTime()
-  
-  // 每秒更新时间
   timer = setInterval(updateTime, 1000)
 })
 
 onUnmounted(() => {
-  // 清除定时器
-  if (timer) {
-    clearInterval(timer)
-  }
+  if (timer) clearInterval(timer)
 })
 </script>
 
@@ -106,14 +113,18 @@ onUnmounted(() => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   
   .header-left {
-    .system-title {
-      font-size: 20px;
+    // 调整面包屑样式
+    :deep(.el-breadcrumb__inner) {
+      color: $text-secondary;
+      font-weight: 500;
+      
+      &.is-link:hover {
+        color: $primary-color;
+      }
+    }
+    :deep(.el-breadcrumb__item:last-child .el-breadcrumb__inner) {
+      color: $text-primary;
       font-weight: 600;
-      background: $gradient-primary;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin: 0;
     }
   }
   
@@ -122,16 +133,30 @@ onUnmounted(() => {
     align-items: center;
     gap: 24px;
     
+    // 全屏按钮样式
+    .icon-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: $text-secondary;
+      transition: all 0.3s;
+      
+      &:hover {
+        background: rgba(0, 0, 0, 0.05);
+        color: $primary-color;
+      }
+    }
+    
     .current-time {
       display: flex;
       align-items: center;
       gap: 8px;
       color: $text-secondary;
       font-size: 14px;
-      
-      .el-icon {
-        font-size: 16px;
-      }
     }
     
     .user-info {

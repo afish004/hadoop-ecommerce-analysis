@@ -1,0 +1,25 @@
+{
+  "enabled": true,
+  "name": "代码注释检查与文档生成",
+  "description": "检测代码文件变动时，先检查代码是否有注释，如果没有则添加中文注释，再根据变动的内容编写一个 Markdown 文档说明",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "*.js",
+      "*.vue",
+      "*.ts",
+      "*.jsx",
+      "*.tsx",
+      "*.py",
+      "*.java",
+      "*.go"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "请执行以下任务：\n1. 检查刚才编辑的代码文件是否有足够的中文注释\n2. 如果缺少注释，请添加清晰的中文注释（包括函数说明、参数说明、返回值说明等）\n3. 根据本次代码变动的内容，在项目根目录的 docs 文件夹中创建或更新对应的 Markdown 文档，说明：\n   - 变动的功能模块\n   - 主要改动内容\n   - 使用方法或注意事项\n请用简体中文完成所有说明文档"
+  },
+  "workspaceFolderName": "hadoop-ecommerce-analysis",
+  "shortName": "code-comment-doc-generator"
+}
