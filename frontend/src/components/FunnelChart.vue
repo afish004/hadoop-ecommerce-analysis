@@ -22,58 +22,59 @@ let chartInstance = null
 
 const initChart = () => {
   if (!chartRef.value) return
-  
   chartInstance = echarts.init(chartRef.value)
   updateChart()
-  
-  window.addEventListener('resize', handleResize)
+  window.addEventListener('resize', () => chartInstance?.resize())
 }
 
 const updateChart = () => {
-  if (!chartInstance || !props.data) return
+  if (!chartInstance || !props.data || props.data.length === 0) return
   
+  // 计算最大值，保证漏斗形状正确
+  const maxValue = props.data.reduce((max, item) => Math.max(max, item.value), 0)
+
   const option = {
+    // 【修改点】删除了 legend (图例) 配置，防止重叠
     tooltip: {
       trigger: 'item',
-      backgroundColor: 'rgba(255, 255, 255, 0.95)',
-      borderColor: '#e4e7ed',
-      borderWidth: 1,
-      textStyle: {
-        color: '#2c3e50'
-      },
-      formatter: '{b}: {c}'
+      formatter: '{b} : {c}'
     },
+    color: ['#1890ff', '#13c2c2', '#faad14', '#f5222d', '#722ed1'],
     series: [
       {
+        name: '转化漏斗',
         type: 'funnel',
-        left: '10%',
-        top: 60,
-        bottom: 60,
-        width: '80%',
+        left: '15%', 
+        top: 20,    // 顶部不需要留给图例了，稍微往上提一点
+        bottom: 20,
+        width: '50%', 
+        
         min: 0,
-        max: 100,
+        max: maxValue,
         minSize: '0%',
         maxSize: '100%',
         sort: 'descending',
         gap: 2,
+        
+        // 既然没有图例，右侧的标签就非常重要了
         label: {
           show: true,
-          position: 'inside',
-          fontSize: 15,
-          color: '#ffffff',
-          fontWeight: 600,
-          formatter: '{b}: {c}'
+          position: 'right',
+          fontSize: 14,
+          color: '#333',
+          formatter: '{b}\n{c}' // 显示名称和数值
         },
         labelLine: {
-          length: 10,
+          length: 30, // 稍微加长引线，让文字离漏斗远一点，更清晰
           lineStyle: {
             width: 1,
-            type: 'solid'
+            type: 'solid',
+            color: '#999'
           }
         },
         itemStyle: {
-          borderColor: 'transparent',
-          borderWidth: 0
+          borderColor: '#fff',
+          borderWidth: 1
         },
         emphasis: {
           label: {
@@ -81,8 +82,7 @@ const updateChart = () => {
             fontWeight: 'bold'
           }
         },
-        data: props.data,
-        color: ['#1890ff', '#52c41a', '#faad14']
+        data: props.data
       }
     ]
   }
@@ -90,20 +90,7 @@ const updateChart = () => {
   chartInstance.setOption(option, true)
 }
 
-const handleResize = () => {
-  chartInstance?.resize()
-}
-
-watch(() => props.data, () => {
-  updateChart()
-}, { deep: true })
-
-onMounted(() => {
-  initChart()
-})
-
-onUnmounted(() => {
-  window.removeEventListener('resize', handleResize)
-  chartInstance?.dispose()
-})
+watch(() => props.data, updateChart, { deep: true })
+onMounted(initChart)
+onUnmounted(() => chartInstance?.dispose())
 </script>

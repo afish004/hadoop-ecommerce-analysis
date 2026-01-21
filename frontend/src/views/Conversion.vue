@@ -1,30 +1,28 @@
 <template>
   <div class="conversion-container">
     <div class="page-header">
-      <h2 class="page-title">流量与转化分析</h2>
-      <p class="page-desc">深入分析用户行为路径与转化效率</p>
+      <h2 class="page-title">用户行为路径分析</h2>
+      <p class="page-desc">基于日志流的转化漏斗与路径追踪</p>
     </div>
     
     <el-row :gutter="20">
-      <!-- 漏斗图 -->
-      <el-col :xs="24" :lg="12">
+      <el-col :xs="24" :lg="8">
         <div class="chart-card">
           <div class="card-header">
-            <h3 class="chart-title">用户转化漏斗</h3>
-            <span class="chart-subtitle">浏览 → 加购 → 下单</span>
+            <h3 class="chart-title">总体转化漏斗</h3>
+            <span class="chart-subtitle">宏观转化率概览</span>
           </div>
-          <FunnelChart :data="conversionData.funnel" height="420px" />
+          <FunnelChart :data="conversionData.funnel" height="500px" />
         </div>
       </el-col>
       
-      <!-- 玫瑰图 -->
-      <el-col :xs="24" :lg="12">
+      <el-col :xs="24" :lg="16">
         <div class="chart-card">
           <div class="card-header">
-            <h3 class="chart-title">行为类型分布</h3>
-            <span class="chart-subtitle">各类用户行为占比</span>
+            <h3 class="chart-title">用户行为流转全景 (Sankey)</h3>
+            <span class="chart-subtitle">可视化展示用户在各页面间的跳转与流失路径</span>
           </div>
-          <RoseChart :data="conversionData.eventDistribution" height="420px" />
+          <SankeyChart :data="conversionData.sankey" height="500px" />
         </div>
       </el-col>
     </el-row>
@@ -34,20 +32,24 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { fetchConversionData } from '@/api/service'
-import FunnelChart from '@/components/FunnelChart.vue'
-import RoseChart from '@/components/RoseChart.vue'
+
+// 1. 引入组件
+import SankeyChart from '@/components/SankeyChart.vue'
+import FunnelChart from '@/components/FunnelChart.vue' // 【修改点】引入漏斗图
 
 const conversionData = ref({
   funnel: [],
-  eventDistribution: []
+  sankey: { nodes: [], links: [] }
 })
 
 const loadData = async () => {
   try {
-    const response = await fetchConversionData()
-    conversionData.value = response.data
+    const res = await fetchConversionData()
+    if (res.data) {
+      conversionData.value = res.data
+    }
   } catch (error) {
-    console.error('加载转化分析数据失败:', error)
+    console.error("加载转化数据失败", error)
   }
 }
 
@@ -62,51 +64,21 @@ onMounted(() => {
 .conversion-container {
   .page-header {
     margin-bottom: 24px;
-    
-    .page-title {
-      font-size: 24px;
-      font-weight: 600;
-      color: $text-primary;
-      margin: 0 0 4px 0;
-    }
-    
-    .page-desc {
-      font-size: 14px;
-      color: $text-muted;
-      margin: 0;
-    }
+    .page-title { font-size: 24px; font-weight: 600; color: $text-primary; margin-bottom: 4px; }
+    .page-desc { font-size: 14px; color: $text-muted; }
   }
-  
-  .el-col {
-    margin-bottom: 20px;
-  }
-  
+
   .chart-card {
     background: $bg-card;
     border-radius: 12px;
     padding: 24px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-    transition: all 0.3s ease;
-    
-    &:hover {
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-      transform: translateY(-2px);
-    }
-    
+    box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+    height: 100%;
+
     .card-header {
       margin-bottom: 20px;
-      
-      .chart-title {
-        font-size: 16px;
-        font-weight: 600;
-        color: $text-primary;
-        margin: 0 0 4px 0;
-      }
-      
-      .chart-subtitle {
-        font-size: 13px;
-        color: $text-muted;
-      }
+      .chart-title { font-size: 16px; font-weight: 600; color: $text-primary; margin-bottom: 4px; }
+      .chart-subtitle { font-size: 13px; color: $text-muted; }
     }
   }
 }
