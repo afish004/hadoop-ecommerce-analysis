@@ -17,51 +17,42 @@ const routes = [
   {
     path: '/',
     component: MainLayout,
-    redirect: '/dashboard',
+    redirect: '/ops-dashboard',
     meta: { requiresAuth: true },
     children: [
       {
-        path: 'dashboard',
-        name: 'Dashboard',
-        component: () => import('@/views/Dashboard.vue'),
+        path: 'ops-dashboard',
+        name: 'OpsDashboard',
+        component: () => import('@/views/OpsDashboard.vue'),
         meta: { 
-          title: '综合驾驶舱',
+          title: '数仓运营大屏',
           icon: 'Odometer'
         }
       },
       {
-        path: 'conversion',
-        name: 'Conversion',
-        component: () => import('@/views/Conversion.vue'),
+        path: 'product-brand',
+        name: 'ProductBrand',
+        component: () => import('@/views/ProductBrand.vue'),
         meta: { 
-          title: '流量与转化',
-          icon: 'TrendCharts'
-        }
-      },
-      {
-        path: 'product',
-        name: 'Product',
-        component: () => import('@/views/Product.vue'),
-        meta: { 
-          title: '商品与品牌',
+          title: '商品与品牌洞察',
           icon: 'Goods'
         }
       },
       {
-        path: 'user-insight',
-        name: 'UserInsight',
-        component: () => import('@/views/UserInsight.vue'),
+        path: 'user-conversion',
+        name: 'UserConversion',
+        component: () => import('@/views/UserConversion.vue'),
         meta: { 
-          title: '用户价值分层',
+          title: '用户与转化全景',
           icon: 'User'
         }
       },
       {
-        path: 'prediction',
-        name: 'Prediction',
-        component: () => import('@/views/Prediction.vue'),
+        path: 'smart-prediction',
+        name: 'SmartPrediction',
+        component: () => import('@/views/SmartPrediction.vue'),
         meta: { 
-          title: '趋势预测',
+          title: '智能预测',
           icon: 'MagicStick'
         }
       }
@@ -102,7 +93,7 @@ router.beforeEach((to, from, next) => {
       const token = localStorage.getItem('token')
       if (token) {
         // 已登录用户访问登录页，跳转到首页
-        next('/dashboard')
+        next('/ops-dashboard')
       } else {
         next()
       }

@@ -13,7 +13,7 @@
         <div class="logo-icon">
           <el-icon :size="48"><DataAnalysis /></el-icon>
         </div>
-        <h1 class="system-title">Hadoop电商行为分析系统</h1>
+        <h1 class="system-title">Hadoop线上零售数仓用户行为分析系统</h1>
         <p class="system-subtitle">Data Analysis & Visualization Platform</p>
       </div>
       

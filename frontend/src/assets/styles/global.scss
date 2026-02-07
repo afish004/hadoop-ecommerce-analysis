@@ -1,5 +1,9 @@
 @use './variables.scss' as *;
 
+// ============================================
+// Linear 风格全局样式 - "氧气感"设计
+// ============================================
+
 // 全局样式重置
 * {
   margin: 0;
@@ -10,167 +14,215 @@
 html, body, #app {
   width: 100%;
   height: 100%;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   
-  // 【修改点1】全局背景升级
-  // 使用淡雅的蓝紫渐变代替纯色背景，营造科技感氛围
-  // 如果想要深色模式，可以换成: linear-gradient(135deg, #1e2a3a 0%, #111827 100%)
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%) !important;
+  // 字体：Inter 优先，稍微加粗提升质感
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-weight: 450; // 稍微加粗，介于 400 和 500 之间
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  // 全局背景：温暖的米白色 + 噪点纹理
+  background: $bg-dark;
+  
+  // 添加噪点纹理（反主流必备）
+  background-image: 
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
   
   color: $text-primary;
   overflow: hidden;
 }
 
-// 滚动条样式 (保持不变，这部分写得很好)
+// ============================================
+// 滚动条样式 - 极简设计
+// ============================================
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05); // 稍微调淡一点
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c0c0c0;
+  background: rgba(0, 0, 0, 0.12);
   border-radius: 4px;
   
   &:hover {
-    background: $primary-color;
+    background: rgba(0, 0, 0, 0.18);
   }
 }
 
-// 【修改点2】定义入场动画关键帧
-@keyframes slideUpFade {
-  from {
-    opacity: 0;
-    transform: translateY(30px); // 从下方30px处浮出
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+// ============================================
+// "有温度的卡片" - 反主流设计
+// ============================================
+// 核心理念：不对称、有呼吸感、拒绝完美居中
 
-// 【修改点3】卡片通用样式升级（玻璃拟态）
-// 这是一个“原子类”，你可以把这个类加到任何需要卡片的地方
-// 同时我也把 .chart-card 等类名加进来了，强制统一风格
 .card, .chart-card, .metric-card, .info-card {
-  // 玻璃拟态核心属性
-  background: rgba(255, 255, 255, 0.75) !important; // 半透明背景
-  backdrop-filter: blur(20px) saturate(180%);        // 毛玻璃模糊 + 饱和度提升
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  // 背景：纯白 + 微妙的米色渐变
+  background: $gradient-card;
   
-  border: 1px solid rgba(255, 255, 255, 0.8) !important; // 亮色边框，模拟光照
-  border-radius: 16px !important;                        // 更圆润的圆角
+  // 边框：棕色系半透明边框
+  border: 1px solid $border-color;
   
-  // 高级柔和投影
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07) !important;
+  // 圆角：14px（不要太规整）
+  border-radius: 14px;
   
+  // 阴影：棕色系柔和阴影
+  box-shadow: $shadow-sm;
+  
+  // 内边距：让内容呼吸
   padding: 24px;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); // 更有弹性的过渡
   
-  // 应用入场动画
-  animation: slideUpFade 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  // 过渡：使用 cubic-bezier 创造有机感
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   
+  // 相对定位：为装饰做准备
+  position: relative;
+  
+  // 反主流装饰：左上角小圆点（不是右上角斜切角）
+  &::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: 6px;
+    height: 6px;
+    background: $primary-color;
+    border-radius: 50%;
+    opacity: 0.4;
+    pointer-events: none;
+  }
+  
+  // 悬停效果：轻微旋转 + 阴影加深（不是上浮）
   &:hover {
-    transform: translateY(-5px) scale(1.01); // 悬停时轻微上浮放大
-    border-color: $primary-color !important;
-    box-shadow: 0 15px 35px rgba(24, 144, 255, 0.15) !important; // 投影加深
+    transform: rotate(-0.5deg) scale(1.01);
+    box-shadow: $shadow-md;
+    border-color: rgba(232, 93, 61, 0.15);
+    
+    &::before {
+      opacity: 1;
+      transform: scale(1.5);
+    }
   }
 }
 
-// 依次设置动画延迟，形成“波浪式”加载效果
-// 这会让页面看起来是一个接一个弹出来的，非常高级
-.el-row {
-  .el-col:nth-child(1) .chart-card, 
-  .el-col:nth-child(1) .metric-card { animation-delay: 0.1s; }
+// 卡片标题：手写感的下划线（不是渐变分割线）
+.card-header,
+.chart-title,
+.chart-title-simple {
+  position: relative;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
   
-  .el-col:nth-child(2) .chart-card, 
-  .el-col:nth-child(2) .metric-card { animation-delay: 0.2s; }
-  
-  .el-col:nth-child(3) .chart-card, 
-  .el-col:nth-child(3) .metric-card { animation-delay: 0.3s; }
-  
-  .el-col:nth-child(4) .chart-card { animation-delay: 0.4s; }
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60%;  // 不是 100%，制造不对称感
+    height: 2px;
+    background: $primary-color;
+    opacity: 0.3;
+    border-radius: 2px;
+  }
 }
 
-// 按钮通用样式
+// ============================================
+// 图表容器 - 移除多余内边距，避免图表上方空白
+// ============================================
+.chart-container,
+.echarts-container {
+  min-height: 300px;
+}
+
+// ============================================
+// 按钮样式 - 有个性的设计
+// ============================================
 .btn-primary {
   background: $gradient-primary;
   color: white;
   border: none;
-  padding: 10px 24px;
-  border-radius: 8px; // 稍微圆润一点
+  padding: 12px 24px;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 14px;
-  letter-spacing: 0.5px;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(24, 144, 255, 0.3); // 增加按钮光晕
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 12px rgba(232, 93, 61, 0.2);
   
   &:hover {
-    filter: brightness(1.1);
-    transform: translateY(-2px); // 按钮悬停上浮
-    box-shadow: 0 6px 20px rgba(24, 144, 255, 0.4);
+    transform: translateY(-2px) rotate(-1deg);
+    box-shadow: 0 8px 20px rgba(232, 93, 61, 0.3);
   }
   
   &:active {
-    transform: translateY(1px);
+    transform: translateY(0) rotate(0deg);
   }
 }
 
 .btn-secondary {
   background: transparent;
   color: $primary-color;
-  border: 1px solid $primary-color;
-  padding: 10px 24px;
+  border: 1px solid $border-color;
+  padding: 10px 20px;
   border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
-  transition: all 0.3s ease;
+  font-weight: 500;
+  transition: all 0.2s ease;
   
   &:hover {
-    background: rgba(24, 144, 255, 0.08);
-    transform: translateY(-2px);
+    background: $hover-bg;
+    border-color: $primary-color;
   }
 }
 
-// Element Plus 白色主题覆盖
+// ============================================
+// Element Plus 组件样式覆盖
+// ============================================
 .el-input__wrapper {
-  background-color: rgba(255, 255, 255, 0.8) !important; // 输入框也半透明
-  box-shadow: 0 0 0 1px $border-color inset !important;
-  border-radius: 8px !important;
+  background-color: $bg-card;
+  box-shadow: 0 0 0 1px $border-color inset;
+  border-radius: 8px;
+  transition: all 0.2s ease;
   
   &:hover {
-    box-shadow: 0 0 0 1px $primary-color inset !important;
-    background-color: #fff !important;
+    box-shadow: 0 0 0 1px rgba(94, 106, 210, 0.3) inset;
   }
   
   &.is-focus {
-    box-shadow: 0 0 0 1px $primary-color inset !important;
-    background-color: #fff !important;
+    box-shadow: 0 0 0 2px rgba(94, 106, 210, 0.2) inset;
   }
 }
 
 .el-button--primary {
-  background: $gradient-primary !important;
-  border: none !important;
-  border-radius: 8px !important;
+  background: $primary-color;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
   
   &:hover {
-    filter: brightness(1.1);
-    transform: translateY(-2px);
+    background: $primary-dark;
+    transform: translateY(-1px);
+  }
+  
+  &:active {
+    transform: translateY(0);
   }
 }
 
-// 统一图表配色
+// ============================================
+// ECharts 配色方案 - 温暖人性化色系
+// ============================================
 .echarts-color-palette {
-  --color-1: #1890ff;
-  --color-2: #52c41a;
-  --color-3: #faad14;
-  --color-4: #13c2c2;
-  --color-5: #722ed1;
-  --color-6: #eb2f96;
-  --color-7: #fa8c16;
-  --color-8: #f5222d;
+  --color-1: #E85D3D; // 珊瑚橙
+  --color-2: #2D9F6E; // 森林绿
+  --color-3: #E8A03D; // 金黄色
+  --color-4: #3D8FE8; // 天空蓝
+  --color-5: #D14B2E; // 砖红色
+  --color-6: #6E9F2D; // 草绿色
+  --color-7: #E83D8F; // 玫瑰红
+  --color-8: #3DE8A0; // 薄荷绿
 }

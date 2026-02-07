@@ -110,7 +110,8 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 8px rgba(45, 42, 38, 0.06);
+  backdrop-filter: blur(10px);
   
   .header-left {
     // 调整面包屑样式
@@ -140,14 +141,15 @@ onUnmounted(() => {
       justify-content: center;
       width: 40px;
       height: 40px;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
       color: $text-secondary;
-      transition: all 0.3s;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
       
       &:hover {
-        background: rgba(0, 0, 0, 0.05);
+        background: rgba(232, 93, 61, 0.08);
         color: $primary-color;
+        transform: scale(1.05);
       }
     }
     
@@ -157,6 +159,11 @@ onUnmounted(() => {
       gap: 8px;
       color: $text-secondary;
       font-size: 14px;
+      font-weight: 500;
+      padding: 8px 12px;
+      background: rgba(232, 93, 61, 0.04);
+      border-radius: 8px;
+      border: 1px solid rgba(232, 93, 61, 0.1);
     }
     
     .user-info {
@@ -165,16 +172,18 @@ onUnmounted(() => {
       gap: 10px;
       cursor: pointer;
       padding: 6px 12px;
-      border-radius: 6px;
-      transition: all 0.3s ease;
+      border-radius: 10px;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
       
       &:hover {
-        background-color: rgba(24, 144, 255, 0.08);
+        background-color: rgba(232, 93, 61, 0.08);
+        transform: translateY(-1px);
       }
       
       .username {
         color: $text-primary;
         font-size: 14px;
+        font-weight: 600;
       }
     }
   }
