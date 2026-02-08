@@ -29,7 +29,7 @@ const sortedData = computed(() => {
 
 // 获取每个词的样式
 const getItemStyle = (item, index) => {
-  const colors = ['#00d4ff', '#ff6b9d', '#ffa94d', '#8ce99a', '#74c0fc', '#da77f2', '#ffd43b', '#ff8787']
+  const colors = ['#E85D3D', '#E8A03D', '#2D9F6E', '#3D8FE8', '#6B6560', '#D14B2E', '#F07A5F', '#FA8C16']
   const maxValue = sortedData.value[0]?.value || 1
   const ratio = item.value / maxValue
   

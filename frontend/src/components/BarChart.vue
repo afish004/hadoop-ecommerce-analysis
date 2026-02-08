@@ -37,10 +37,7 @@ const updateChart = () => {
       trigger: 'axis',
       backgroundColor: 'rgba(255, 255, 255, 0.95)',
       borderColor: '#e4e7ed',
-      borderWidth: 1,
-      textStyle: {
-        color: '#2c3e50'
-      },
+      textStyle: { color: '#333' },
       axisPointer: {
         type: 'shadow'
       }
@@ -86,16 +83,16 @@ const updateChart = () => {
         barWidth: '60%',
         itemStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
-            { offset: 0, color: '#1890ff' },
-            { offset: 1, color: '#096dd9' }
+            { offset: 0, color: '#E85D3D' },
+            { offset: 1, color: '#F07A5F' }
           ]),
           borderRadius: [0, 4, 4, 0]
         },
         emphasis: {
           itemStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
-              { offset: 0, color: '#40a9ff' },
-              { offset: 1, color: '#1890ff' }
+              { offset: 0, color: '#F07A5F' },
+              { offset: 1, color: '#E85D3D' }
             ])
           }
         }

@@ -54,6 +54,72 @@ html, body, #app {
 }
 
 // ============================================
+// 卡片入场动画 - 从下往上浮现
+// ============================================
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// 应用动画到卡片
+.chart-card,
+.metric-card,
+.metric-card-hero,
+.metric-card-small,
+.info-card,
+.tech-illustration-card {
+  animation: slideUpFade 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  
+  // 交错延迟效果（多米诺骨牌）
+  &:nth-child(1) { animation-delay: 0s; }
+  &:nth-child(2) { animation-delay: 0.1s; }
+  &:nth-child(3) { animation-delay: 0.2s; }
+  &:nth-child(4) { animation-delay: 0.3s; }
+  &:nth-child(5) { animation-delay: 0.4s; }
+  &:nth-child(6) { animation-delay: 0.5s; }
+  &:nth-child(7) { animation-delay: 0.6s; }
+  &:nth-child(8) { animation-delay: 0.7s; }
+  &:nth-child(9) { animation-delay: 0.8s; }
+  &:nth-child(10) { animation-delay: 0.9s; }
+}
+
+// 针对 Bento Grid 内的卡片
+.bento-grid > * {
+  animation: slideUpFade 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  
+  &:nth-child(1) { animation-delay: 0s; }
+  &:nth-child(2) { animation-delay: 0.1s; }
+  &:nth-child(3) { animation-delay: 0.2s; }
+  &:nth-child(4) { animation-delay: 0.3s; }
+  &:nth-child(5) { animation-delay: 0.4s; }
+  &:nth-child(6) { animation-delay: 0.5s; }
+}
+
+// 针对 side-area 内的卡片（OpsDashboard 特殊布局）
+.side-area > * {
+  animation: slideUpFade 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  
+  &:nth-child(1) { animation-delay: 0s; }
+  &:nth-child(2) { animation-delay: 0.1s; }
+  &:nth-child(3) { animation-delay: 0.2s; }
+  &:nth-child(4) { animation-delay: 0.3s; }
+}
+
+// 针对 metrics-row 内的小卡片
+.metrics-row > * {
+  animation: slideUpFade 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  
+  &:nth-child(1) { animation-delay: 0.1s; }
+  &:nth-child(2) { animation-delay: 0.2s; }
+}
+
+// ============================================
 // "有温度的卡片" - 反主流设计
 // ============================================
 // 核心理念：不对称、有呼吸感、拒绝完美居中
@@ -225,4 +291,45 @@ html, body, #app {
   --color-6: #6E9F2D; // 草绿色
   --color-7: #E83D8F; // 玫瑰红
   --color-8: #3DE8A0; // 薄荷绿
+}
+
+// ============================================
+// ECharts Tooltip 磨砂玻璃样式
+// ============================================
+// 使用更高优先级的选择器覆盖 ECharts 内联样式
+.echarts-tooltip-glass,
+div.echarts-tooltip-glass {
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important; // Safari 兼容
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0 8px 32px rgba(232, 93, 61, 0.15) !important;
+  border-radius: 12px !important;
+  padding: 12px 16px !important;
+  color: #2D2A26 !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+  
+  // 内部的小圆点样式优化
+  .tooltip-marker {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+    box-shadow: 0 0 4px currentColor; // 让它发光
+  }
+}
+
+// 针对 ECharts 生成的 tooltip DOM 结构
+div[class*="echarts-tooltip"] {
+  &.echarts-tooltip-glass {
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    box-shadow: 0 8px 32px rgba(232, 93, 61, 0.15) !important;
+    border-radius: 12px !important;
+  }
 }

@@ -74,11 +74,7 @@ const updateChart = () => {
       trigger: 'item',
       backgroundColor: 'rgba(255, 255, 255, 0.95)',
       borderColor: '#e4e7ed',
-      borderWidth: 1,
-      textStyle: {
-        color: '#2c3e50'
-      },
-      // 自定义提示框内容：显示价格和销量
+      textStyle: { color: '#333' },
       formatter: (params) => {
         return `价格: ¥${params.value[0].toFixed(2)}<br/>销量: ${params.value[1]}`
       }
@@ -140,15 +136,15 @@ const updateChart = () => {
         data: props.data,
         symbolSize: 8,
         itemStyle: {
-          color: '#1890ff',
+          color: '#E85D3D',
           opacity: 0.6
         },
         // 高亮样式：鼠标悬停时的效果
         emphasis: {
           itemStyle: {
-            color: '#40a9ff',
+            color: '#F07A5F',
             opacity: 1,
-            borderColor: '#1890ff',
+            borderColor: '#E85D3D',
             borderWidth: 2
           }
         }

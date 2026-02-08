@@ -27,22 +27,15 @@
       </div>
     </div>
     
-    <!-- 不对称 Bento Grid 布局：3fr 2fr (打破对称) -->
+    <!-- 不对称 Bento Grid 布局：2fr 3fr (左窄右宽) -->
     <div class="bento-grid">
-      <!-- 左侧：流量趋势图 -->
-      <div class="chart-card chart-main">
-        <div class="card-header-casual">
-          <h3 class="chart-title-casual">PV/UV 流量趋势</h3>
-          <span class="chart-subtitle">按日期统计的访问量变化</span>
-        </div>
-        <LineChart :key="chartKey" :data="pvuvTrendData" :loading="loading" height="420px" />
-      </div>
-      
-      <!-- 右侧：指标卡 + 热力图 -->
+      <!-- 左侧：指标卡 + 热力图 -->
       <div class="side-area">
         <!-- 大号销售额卡片 - 更有个性的设计 -->
         <div class="metric-card-hero">
-          <div class="metric-badge">💰</div>
+          <div class="metric-badge">
+            <el-icon><Money /></el-icon>
+          </div>
           <div class="metric-content">
             <div class="metric-label">区间总销售额 (GMV)</div>
             <div class="metric-value">{{ formatMoney(dashboardData.metrics.gmv) }}</div>
@@ -53,13 +46,17 @@
         <!-- 两个小指标卡：专业表达 -->
         <div class="metrics-row">
           <div class="metric-card-small">
-            <div class="metric-icon-small">👀</div>
+            <div class="metric-icon-small">
+              <el-icon><View /></el-icon>
+            </div>
             <div class="metric-label-small">区间总浏览量 (PV)</div>
             <div class="metric-value-small">{{ formatNumber(dashboardData.metrics.pv) }}</div>
           </div>
           
           <div class="metric-card-small">
-            <div class="metric-icon-small">👤</div>
+            <div class="metric-icon-small">
+              <el-icon><UserFilled /></el-icon>
+            </div>
             <div class="metric-label-small">区间独立访客 (UV)</div>
             <div class="metric-value-small">{{ formatNumber(dashboardData.metrics.uv) }}</div>
           </div>
@@ -74,15 +71,58 @@
           <HeatmapChart :data="dashboardData.activityHeatmap" height="280px" />
         </div>
       </div>
+      
+      <!-- 右侧：流量趋势图 + 数据统计栏 -->
+      <div class="right-area">
+        <!-- 流量趋势图 -->
+        <div class="chart-card chart-main">
+          <div class="card-header-casual">
+            <h3 class="chart-title-casual">PV/UV 流量趋势</h3>
+            <span class="chart-subtitle">按日期统计的访问量变化</span>
+          </div>
+          <LineChart :key="chartKey" :data="pvuvTrendData" :loading="loading" height="420px" />
+        </div>
+        
+        <!-- 数据统计栏 -->
+        <div class="chart-card chart-summary">
+          <div class="summary-item">
+            <div class="icon-wrapper peak">
+              <el-icon><Top /></el-icon>
+            </div>
+            <div class="text-group">
+              <span class="label">本月流量峰值 (Peak)</span>
+              <div class="value-row">
+                <span class="value">{{ formatNumber(maxPV) }}</span>
+                <span class="sub">于 {{ maxPVDate }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="divider"></div>
+          
+          <div class="summary-item">
+            <div class="icon-wrapper avg">
+              <el-icon><DataLine /></el-icon>
+            </div>
+            <div class="text-group">
+              <span class="label">日均访问量 (Avg)</span>
+              <div class="value-row">
+                <span class="value">{{ formatNumber(avgPV) }}</span>
+                <span class="sub">/ 天</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 // ==================== 组件导入 ====================
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { fetchDashboardData } from '@/api/service'
-import { Refresh } from '@element-plus/icons-vue'
+import { Refresh, Money, View, UserFilled, Top, DataLine } from '@element-plus/icons-vue'
 import LineChart from '@/components/LineChart.vue'
 import HeatmapChart from '@/components/HeatmapChart.vue'
 
@@ -127,6 +167,53 @@ const dashboardData = ref({
  * 从 dashboardData.pvuvTrend 中提取并格式化
  */
 const pvuvTrendData = ref({})
+
+// ==================== 数据统计计算 ====================
+
+/**
+ * 计算流量峰值（最大 PV 值）
+ * 从 pvuvTrendData 的 PV 系列中找出最大值
+ */
+const maxPV = computed(() => {
+  if (!pvuvTrendData.value.series || pvuvTrendData.value.series.length === 0) return 0
+  const pvSeries = pvuvTrendData.value.series.find(s => s.name.includes('PV'))
+  if (!pvSeries || !pvSeries.data) return 0
+  return Math.max(...pvSeries.data)
+})
+
+/**
+ * 计算峰值出现的日期
+ * 找到最大 PV 值对应的日期，格式化为 MM-DD
+ */
+const maxPVDate = computed(() => {
+  if (!pvuvTrendData.value.series || pvuvTrendData.value.series.length === 0) return '-'
+  const pvSeries = pvuvTrendData.value.series.find(s => s.name.includes('PV'))
+  if (!pvSeries || !pvSeries.data || !pvuvTrendData.value.xAxis) return '-'
+  
+  const maxValue = Math.max(...pvSeries.data)
+  const maxIndex = pvSeries.data.indexOf(maxValue)
+  const fullDate = pvuvTrendData.value.xAxis[maxIndex]
+  
+  // 格式化为 MM-DD（如 "10-15"）
+  if (fullDate) {
+    const parts = fullDate.split('-')
+    return `${parts[1]}-${parts[2]}`
+  }
+  return '-'
+})
+
+/**
+ * 计算日均访问量（平均 PV 值）
+ * 对 PV 系列数据求平均值
+ */
+const avgPV = computed(() => {
+  if (!pvuvTrendData.value.series || pvuvTrendData.value.series.length === 0) return 0
+  const pvSeries = pvuvTrendData.value.series.find(s => s.name.includes('PV'))
+  if (!pvSeries || !pvSeries.data || pvSeries.data.length === 0) return 0
+  
+  const sum = pvSeries.data.reduce((acc, val) => acc + val, 0)
+  return Math.floor(sum / pvSeries.data.length)
+})
 
 // ==================== 日期筛选配置 ====================
 
@@ -357,18 +444,35 @@ onMounted(() => {
   }
 
   // ============================================
-  // 不对称 Bento Grid 布局：3fr 2fr
+  // 不对称 Bento Grid 布局：2fr 3fr (左窄右宽)
+  // 
+  // 布局说明：
+  // - 左侧（2fr）：指标卡 + 热力图，占据较窄空间
+  // - 右侧（3fr）：流量趋势图 + 数据统计栏，占据较宽空间
+  // 
+  // 设计理念：
+  // - 打破传统对称布局，增强视觉张力
+  // - 趋势图需要更宽的空间展示数据变化
+  // - 指标卡紧凑排列，快速浏览核心数据
+  // 
+  // 版本历史：
+  // - v4.7：右侧新增数据统计栏
+  // - v4.4：从 3fr 2fr 调整为 2fr 3fr（左窄右宽）
+  // - v4.0-v4.3：使用 3fr 2fr（左宽右窄）
   // ============================================
   .bento-grid {
     display: grid;
-    grid-template-columns: 3fr 2fr;
+    grid-template-columns: 2fr 3fr;
     gap: 20px; // 稍微大一点的间距
     
-    .chart-main {
+    .side-area {
       grid-column: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
     }
     
-    .side-area {
+    .right-area {
       grid-column: 2;
       display: flex;
       flex-direction: column;
@@ -378,8 +482,8 @@ onMounted(() => {
     @media (max-width: 1024px) {
       grid-template-columns: 1fr;
       
-      .chart-main,
-      .side-area {
+      .side-area,
+      .right-area {
         grid-column: 1;
       }
     }
@@ -419,10 +523,22 @@ onMounted(() => {
     }
     
     .metric-badge {
-      font-size: 40px;            // 更大的 emoji
+      width: 80px;
+      height: 80px;
+      border-radius: 20px;
+      background: rgba(232, 93, 61, 0.1);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       margin-bottom: 16px;
-      display: inline-block;
       animation: float 3s ease-in-out infinite;
+      box-shadow: 0 4px 12px rgba(232, 93, 61, 0.15);
+      
+      .el-icon {
+        font-size: 40px;
+        color: #E85D3D;
+      }
     }
     
     .metric-content {
@@ -497,10 +613,21 @@ onMounted(() => {
     }
     
     .metric-icon-small {
-      font-size: 32px;            // 更大的 emoji
-      margin-bottom: 12px;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(232, 93, 61, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
       position: relative;
       z-index: 1;
+      
+      .el-icon {
+        font-size: 24px;
+        color: #E85D3D;
+      }
     }
     
     .metric-label-small {
@@ -527,6 +654,93 @@ onMounted(() => {
   .chart-heatmap {
     flex: 1;
     min-height: 0;
+  }
+  
+  // ============================================
+  // 数据统计栏 - 极简设计
+  // ============================================
+  .chart-summary {
+    height: 100px;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    background: #F8FAFC !important;
+    border: 1px solid rgba(0, 0, 0, 0.04) !important;
+    box-shadow: none !important;
+    
+    &:hover {
+      transform: none;
+      box-shadow: none !important;
+      border-color: rgba(0, 0, 0, 0.04) !important;
+    }
+    
+    .summary-item {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+    
+    .divider {
+      width: 1px;
+      height: 40px;
+      background: rgba(0, 0, 0, 0.06);
+    }
+    
+    .icon-wrapper {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+      
+      &.peak {
+        background: rgba(232, 93, 61, 0.08);
+        color: #E85D3D;
+      }
+      
+      &.avg {
+        background: rgba(37, 99, 235, 0.08);
+        color: #2563EB;
+      }
+    }
+    
+    .text-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      
+      .label {
+        font-size: 15px;
+        color: $text-secondary;
+        margin-bottom: 2px;
+        font-weight: 600;
+      }
+      
+      .value-row {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        
+        .value {
+          font-family: 'DIN Alternate', -apple-system, BlinkMacSystemFont, sans-serif;
+          font-size: 22px;
+          font-weight: 700;
+          color: #1E293B;
+          letter-spacing: -0.5px;
+        }
+        
+        .sub {
+          font-size: 12px;
+          color: #CBD5E1;
+          font-weight: 500;
+        }
+      }
+    }
   }
 
   // ============================================

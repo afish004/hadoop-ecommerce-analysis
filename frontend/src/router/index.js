@@ -15,6 +15,15 @@ const routes = [
     }
   },
   {
+    path: '/register',
+    name: 'Register',
+    component: () => import('@/views/Register.vue'),
+    meta: { 
+      requiresAuth: false,
+      title: '注册'
+    }
+  },
+  {
     path: '/',
     component: MainLayout,
     redirect: '/ops-dashboard',
@@ -89,10 +98,10 @@ router.beforeEach((to, from, next) => {
     }
   } else {
     // 不需要登录验证的页面
-    if (to.path === '/login') {
+    if (to.path === '/login' || to.path === '/register') {
       const token = localStorage.getItem('token')
       if (token) {
-        // 已登录用户访问登录页，跳转到首页
+        // 已登录用户访问登录/注册页，跳转到首页
         next('/ops-dashboard')
       } else {
         next()

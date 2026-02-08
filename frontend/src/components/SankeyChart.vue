@@ -40,10 +40,13 @@ const updateChart = () => {
     tooltip: {
       trigger: 'item',
       triggerOn: 'mousemove',
-      formatter: '{b}: {c}' // 显示 流向: 流量数值
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      borderColor: '#e4e7ed',
+      textStyle: { color: '#333' },
+      formatter: '{b}: {c}'
     },
     // 颜色盘：给桑基图一些好看的默认颜色
-    color: ['#1890ff', '#13c2c2', '#52c41a', '#faad14', '#f5222d', '#722ed1', '#eb2f96'],
+    color: ['#E85D3D', '#E8A03D', '#2D9F6E', '#3D8FE8', '#6B6560', '#D14B2E', '#F07A5F'],
     series: [
       {
         type: 'sankey',

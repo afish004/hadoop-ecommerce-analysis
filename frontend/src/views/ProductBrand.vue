@@ -1,7 +1,7 @@
 <!--
   主题二：商品与品牌洞察 (ProductBrand)
-  功能：品类旭日图、品牌 TOP10、价格敏感度分析
-  特点：商品专题页，三图组合展示
+  功能：品类旭日图、品类词云、品牌 TOP10、价格敏感度分析
+  特点：2x2 Bento Grid 布局，视觉系与分析系图表对角呼应
 -->
 <template>
   <div class="product-brand-container">
@@ -10,33 +10,30 @@
       <p class="page-desc">多维度商品数据分析与品牌竞争力评估</p>
     </div>
     
-    <!-- Bento Grid 布局容器：紧凑布局 -->
+    <!-- 2x2 Bento Grid 布局容器 -->
     <div class="bento-grid">
-      <!-- 左上：旭日图 -->
+      <!-- 左上 (Visual)：旭日图 -->
       <div class="chart-card chart-sunburst">
         <h3 class="chart-title-simple">热门品类销售占比</h3>
-        <!-- 
-          旭日图容器包裹层
-          功能说明：
-          - 使用 Flexbox 让旭日图在卡片内垂直居中
-          - 设置 height="100%" 让图表自适应容器高度
-          - 解决旭日图在左侧两行高度下的居中对齐问题
-        -->
-        <div class="sunburst-wrapper">
-          <SunburstChart :data="productData.categorySales" height="100%" />
-        </div>
+        <SunburstChart :data="productData.categorySales" height="420px" />
       </div>
       
-      <!-- 品牌 TOP10 -->
+      <!-- 右上 (Analytical)：品牌 TOP10 -->
       <div class="chart-card chart-brand">
         <h3 class="chart-title-simple">品牌销量排行 TOP10</h3>
-        <BarChart :data="brandTop10Data" height="460px" />
+        <BarChart :data="brandTop10Data" height="420px" />
       </div>
       
-      <!-- 下方通栏：价格敏感度分析 -->
+      <!-- 左下 (Visual)：词云图 -->
+      <div class="chart-card chart-wordcloud">
+        <h3 class="chart-title-simple">🔥 热门品类词云</h3>
+        <WordCloudChart :data="productData.categoryWordCloud" height="300px" />
+      </div>
+      
+      <!-- 右下 (Analytical)：价格敏感度分析 -->
       <div class="chart-card chart-price">
         <h3 class="chart-title-simple">价格敏感度散点分析</h3>
-        <ScatterChart :data="productData.priceSensitivity" height="380px" />
+        <ScatterChart :data="productData.priceSensitivity" height="420px" />
       </div>
     </div>
   </div>
@@ -49,6 +46,7 @@ import { fetchProductData, fetchDashboardData } from '@/api/service'
 import BarChart from '@/components/BarChart.vue'
 import ScatterChart from '@/components/ScatterChart.vue'
 import SunburstChart from '@/components/SunburstChart.vue'
+import WordCloudChart from '@/components/WordCloudChart.vue'
 
 // ==================== 响应式状态 ====================
 
@@ -211,24 +209,34 @@ onMounted(() => {
   }
   
   // ============================================
-  // 不对称 Bento Grid 布局：5fr 3fr (左侧适中，右侧稍窄)
+  // 2x2 Bento Grid 布局：左侧视觉系，右侧分析系
   // ============================================
+  // 布局理念：
+  // - 左上 + 左下：视觉系图表（旭日图 + 词云图）
+  // - 右上 + 右下：分析系图表（柱状图 + 散点图）
+  // - 1:1 比例，视觉重心平衡
   .bento-grid {
     display: grid;
-    grid-template-columns: 5fr 3fr;
+    grid-template-columns: 1fr 1fr;
     grid-template-rows: auto auto;
     gap: 20px;
     
-    // 左上：旭日图（占据左侧两行）
+    // 左上：旭日图
     .chart-sunburst {
       grid-column: 1;
-      grid-row: 1 / 3;
+      grid-row: 1;
     }
     
     // 右上：品牌 TOP10
     .chart-brand {
       grid-column: 2;
       grid-row: 1;
+    }
+    
+    // 左下：词云图
+    .chart-wordcloud {
+      grid-column: 1;
+      grid-row: 2;
     }
     
     // 右下：价格敏感度
@@ -243,6 +251,7 @@ onMounted(() => {
       
       .chart-sunburst,
       .chart-brand,
+      .chart-wordcloud,
       .chart-price {
         grid-column: 1;
         grid-row: auto;
@@ -256,40 +265,14 @@ onMounted(() => {
     border-radius: 20px;          // 更圆润
     padding: 28px;                // 更宽松
     box-shadow: $shadow-sm;
-    height: 100%;
     transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     position: relative;
-    display: flex;
-    flex-direction: column;
     
     &:hover {
       transform: rotate(-0.5deg) scale(1.008);  // 更明显的悬停效果
       box-shadow: $shadow-lg;
       border-color: rgba(232, 160, 61, 0.25);
     }
-  }
-  
-  // ============================================
-  // 旭日图容器：Flexbox 居中布局
-  // ============================================
-  // 设计理念：让旭日图在左侧两行高度的卡片内垂直居中
-  // 技术实现：
-  // - flex: 1 让容器占据剩余空间（标题下方的所有空间）
-  // - display: flex + align-items: center 实现垂直居中
-  // - justify-content: center 实现水平居中
-  // - min-height: 0 解决 Flexbox 子元素高度计算问题
-  // 
-  // 为什么需要这个容器？
-  // - 旭日图占据左侧两行（grid-row: 1 / 3），高度较大
-  // - 直接使用固定高度（如 460px）会导致图表在大屏幕下显得过小
-  // - 使用 height="100%" 让图表自适应容器高度，充分利用空间
-  // - Flexbox 居中确保图表在容器内视觉平衡
-  .sunburst-wrapper {
-    flex: 1;                    // 占据剩余空间
-    display: flex;              // Flexbox 布局
-    align-items: center;        // 垂直居中
-    justify-content: center;    // 水平居中
-    min-height: 0;              // 解决 Flexbox 高度计算问题
   }
   
   // ============================================

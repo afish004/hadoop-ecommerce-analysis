@@ -117,11 +117,45 @@ export const productData = {
   },
 //词云图数据
   categoryWordCloud: [
-    { name: 'Smartphone', value: 1000 },
-    { name: 'Laptop', value: 850 },
-    { name: 'Headphone', value: 700 },
-    { name: 'Watch', value: 600 },
-    { name: 'TV', value: 550 }
+    // 电子产品类（高热度）
+    { name: '手机', value: 1500 },
+    { name: '笔记本电脑', value: 1200 },
+    { name: '平板电脑', value: 950 },
+    { name: '智能手表', value: 850 },
+    { name: '蓝牙耳机', value: 800 },
+    { name: '智能电视', value: 750 },
+    { name: '游戏主机', value: 700 },
+    { name: '数码相机', value: 650 },
+    
+    // 家电类（中高热度）
+    { name: '空气净化器', value: 600 },
+    { name: '扫地机器人', value: 580 },
+    { name: '电饭煲', value: 550 },
+    { name: '微波炉', value: 520 },
+    { name: '洗衣机', value: 500 },
+    { name: '冰箱', value: 480 },
+    { name: '空调', value: 460 },
+    { name: '热水器', value: 440 },
+    
+    // 数码配件类（中等热度）
+    { name: '充电宝', value: 420 },
+    { name: '数据线', value: 400 },
+    { name: '手机壳', value: 380 },
+    { name: '键盘', value: 360 },
+    { name: '鼠标', value: 340 },
+    { name: '显示器', value: 320 },
+    { name: '音箱', value: 300 },
+    { name: 'U盘', value: 280 },
+    
+    // 生活电器类（中低热度）
+    { name: '电动牙刷', value: 260 },
+    { name: '吹风机', value: 240 },
+    { name: '剃须刀', value: 220 },
+    { name: '咖啡机', value: 200 },
+    { name: '榨汁机', value: 180 },
+    { name: '电水壶', value: 160 },
+    { name: '加湿器', value: 140 },
+    { name: '电风扇', value: 120 }
   ],
 //散点图数据
   priceSensitivity: Array.from({ length: 50 }, () => 

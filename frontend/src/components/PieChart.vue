@@ -31,15 +31,12 @@ const updateChart = () => {
   if (!chartInstance || !props.data) return
   
   const option = {
-    // 【修复核心】：解决提示框被遮挡/显示不全的问题
     tooltip: {
       trigger: 'item',
-      confine: true,  // <--- 关键！将提示框限制在图表区域内
+      confine: true,
       backgroundColor: 'rgba(255, 255, 255, 0.95)',
       borderColor: '#e4e7ed',
-      borderWidth: 1,
-      textStyle: { color: '#2c3e50' },
-      // 提示框内容：显示 名称、数值、百分比
+      textStyle: { color: '#333' },
       formatter: '{b}<br/><b>{c}</b> ({d}%)' 
     },
     // 【布局优化】：图例放右边，不和饼图重叠
@@ -102,7 +99,7 @@ const updateChart = () => {
           show: false
         },
         data: props.data,
-        color: ['#1890ff', '#13c2c2', '#52c41a', '#faad14', '#f5222d', '#722ed1', '#eb2f96']
+        color: ['#E85D3D', '#E8A03D', '#2D9F6E', '#3D8FE8', '#6B6560', '#D14B2E']
       }
     ]
   }

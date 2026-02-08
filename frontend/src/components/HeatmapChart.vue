@@ -30,6 +30,9 @@ const updateChart = () => {
   const option = {
     tooltip: {
       position: 'top',
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      borderColor: '#e4e7ed',
+      textStyle: { color: '#333' },
       formatter: (params) => {
         return `${days[params.value[1]]} ${hours[params.value[0]]}<br/>活跃热度: ${params.value[2]}`
       }
@@ -55,7 +58,7 @@ const updateChart = () => {
       left: 'center',
       bottom: '0%',
       inRange: {
-        color: ['#f0f9ff', '#bae6fd', '#0ea5e9', '#0284c7'] // 科技蓝渐变
+        color: ['#FFF5E6', '#FFD8A8', '#FA8C16', '#E85D3D'] // 橙色系渐变
       }
     },
     series: [{
