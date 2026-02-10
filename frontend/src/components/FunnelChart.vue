@@ -74,6 +74,12 @@ const updateChart = () => {
   
   // 计算最大值，保证漏斗形状正确
   const maxValue = props.data.reduce((max, item) => Math.max(max, item.value), 0)
+  
+  // 为每个阶段计算转化率
+  const dataWithRate = props.data.map((item, index) => {
+    const rate = index === 0 ? '100%' : ((item.value / props.data[0].value) * 100).toFixed(1) + '%'
+    return { ...item, rate }
+  })
 
   const option = {
     // ==================== 提示框配置 ====================
@@ -82,19 +88,21 @@ const updateChart = () => {
       backgroundColor: 'rgba(255, 255, 255, 0.95)',
       borderColor: '#e4e7ed',
       textStyle: { color: '#333' },
-      formatter: '{b} : {c}'
+      formatter: (params) => {
+        const rate = dataWithRate[params.dataIndex]?.rate || ''
+        return `${params.name}<br/>数量: ${params.value.toLocaleString()}<br/>转化率: ${rate}`
+      }
     },
     
     // ==================== 配色方案 ====================
-    // v1.1 大地色系调色板（6 种颜色）
-    // 从暖色到冷色，层次分明
+    // 暖色调配色，橙色和绿色为主
     color: [
-      '#E85D3D',  // 珊瑚橙（主色）
-      '#E8A03D',  // 金黄色（次要色）
-      '#2D9F6E',  // 森林绿（成功色）
-      '#3D8FE8',  // 天空蓝（信息色）
-      '#6B6560',  // 棕灰色（中性色）- v1.1 新增
-      '#D14B2E'   // 深橙红（强调色）
+      '#ff7a45',  // 橙色
+      '#52c41a',  // 绿色
+      '#faad14',  // 金黄色
+      '#fa541c',  // 深橙红
+      '#73d13d',  // 浅绿
+      '#ffc53d'   // 金色
     ],
     
     // ==================== 系列配置 ====================
@@ -104,50 +112,60 @@ const updateChart = () => {
         type: 'funnel',
         
         // 布局配置
-        left: '15%',                      // 左侧留白 15%
-        top: 20,                          // 顶部间距 20px
-        bottom: 20,                       // 底部间距 20px
-        width: '50%',                     // 漏斗宽度 50%
+        left: '15%',
+        top: 30,
+        bottom: 30,
+        width: '50%',
         
-        // 数值范围配置
-        min: 0,                           // 最小值
-        max: maxValue,                    // 最大值（动态计算）
-        minSize: '0%',                    // 最小阶段高度
-        maxSize: '100%',                  // 最大阶段高度
-        sort: 'descending',               // 排序方式：降序
-        gap: 2,                           // 阶段间距 2px
+        // 倒三角漏斗图配置
+        min: 0,
+        max: maxValue,
+        minSize: '15%',                   // 最小层宽度15%
+        maxSize: '100%',
+        sort: 'descending',               // 倒序：大值在上，小值在下
+        funnelAlign: 'center',            // 居中对齐，形成倒三角
+        gap: 4,
         
         // ==================== 标签配置 ====================
-        // 右侧标签显示阶段名称和数值
         label: {
-          show: true,                     // 显示标签
-          position: 'right',              // 标签位置：右侧
-          fontSize: 14,                   // 字号 14px
-          color: '#333',                  // 文字颜色：深灰
-          formatter: '{b}\n{c}'           // 格式：名称 + 换行 + 数值
+          show: true,
+          position: 'right',
+          fontSize: 13,
+          color: '#333',
+          fontWeight: 'bold',
+          formatter: (params) => {
+            const rate = dataWithRate[params.dataIndex]?.rate || ''
+            return `${params.name}\n${params.value.toLocaleString()}\n(${rate})`
+          }
         },
         
         // ==================== 引导线配置 ====================
         labelLine: {
-          length: 30,                     // 引导线长度 30px
+          length: 20,
           lineStyle: {
-            width: 1,                     // 线宽 1px
-            type: 'solid',                // 线型：实线
-            color: '#999'                 // 线颜色：浅灰
+            width: 1,
+            type: 'solid',
+            color: '#999'
           }
         },
         
         // ==================== 样式配置 ====================
         itemStyle: {
-          borderColor: '#fff',            // 边框颜色：白色
-          borderWidth: 1                  // 边框宽度 1px
+          borderColor: '#fff',
+          borderWidth: 2,
+          shadowBlur: 10,
+          shadowColor: 'rgba(0,0,0,0.1)'
         },
         
         // ==================== 高亮配置 ====================
         emphasis: {
           label: {
-            fontSize: 16,                 // 高亮时字号 16px
-            fontWeight: 'bold'            // 高亮时字重：粗体
+            fontSize: 15,
+            fontWeight: 'bold'
+          },
+          itemStyle: {
+            shadowBlur: 20,
+            shadowColor: 'rgba(0,0,0,0.2)'
           }
         },
         

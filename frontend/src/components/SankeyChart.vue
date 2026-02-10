@@ -35,6 +35,30 @@ const updateChart = () => {
     // console.warn('桑基图等待数据中...') 
     return
   }
+  
+  // 暖色调配色板，橙色和绿色为主
+  const colorPalette = [
+    '#ff7a45',  // 橙色
+    '#52c41a',  // 绿色
+    '#faad14',  // 金黄色
+    '#fa541c',  // 深橙红
+    '#73d13d',  // 浅绿
+    '#ffc53d',  // 金色
+    '#ff9c6e',  // 浅橙
+    '#95de64',  // 浅草绿
+    '#ffd666',  // 浅金
+    '#d46b08'   // 深橙
+  ]
+  
+  // 给每个节点分配不同颜色
+  const nodesWithColor = props.data.nodes.map((node, index) => ({
+    ...node,
+    itemStyle: {
+      color: colorPalette[index % colorPalette.length],
+      borderColor: '#fff',
+      borderWidth: 1
+    }
+  }))
 
   const option = {
     tooltip: {
@@ -43,39 +67,48 @@ const updateChart = () => {
       backgroundColor: 'rgba(255, 255, 255, 0.95)',
       borderColor: '#e4e7ed',
       textStyle: { color: '#333' },
-      formatter: '{b}: {c}'
+      formatter: (params) => {
+        if (params.dataType === 'edge') {
+          return `${params.data.source} → ${params.data.target}<br/>流量: ${params.value.toLocaleString()}`
+        }
+        return `${params.name}: ${params.value?.toLocaleString() || ''}`
+      }
     },
-    // 颜色盘：给桑基图一些好看的默认颜色
-    color: ['#E85D3D', '#E8A03D', '#2D9F6E', '#3D8FE8', '#6B6560', '#D14B2E', '#F07A5F'],
     series: [
       {
         type: 'sankey',
         layout: 'none',
-        emphasis: { focus: 'adjacency' },
-        data: props.data.nodes,
+        emphasis: { 
+          focus: 'adjacency',
+          lineStyle: {
+            opacity: 0.8
+          }
+        },
+        data: nodesWithColor,
         links: props.data.links,
-        top: '5%',    // 留出边距
+        top: '5%',
         bottom: '5%',
         left: '2%',
-        right: '15%', // 右边留多点给文字
-        nodeWidth: 20,
-        nodeGap: 16,  // 节点间距拉大一点，防止重叠
-        layoutIterations: 32, // 布局迭代次数，自动优化位置
+        right: '18%',
+        nodeWidth: 24,            // 增加节点宽度
+        nodeGap: 20,              // 增加节点间距
+        layoutIterations: 32,
         itemStyle: {
-          borderWidth: 0,
+          borderWidth: 1,
           borderColor: '#fff'
         },
         lineStyle: {
-          color: 'gradient', // 线条颜色渐变，更好看
+          color: 'source',        // 线条颜色跟随源节点
           curveness: 0.5,
-          opacity: 0.4
+          opacity: 0.5            // 增加线条不透明度
         },
         label: {
           show: true,
           position: 'right',
           color: '#333',
-          fontSize: 12,
-          fontWeight: 'bold'
+          fontSize: 13,
+          fontWeight: 'bold',
+          formatter: '{b}'
         }
       }
     ]

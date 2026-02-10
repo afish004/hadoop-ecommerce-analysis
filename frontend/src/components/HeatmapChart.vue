@@ -25,7 +25,18 @@ const initChart = () => {
 }
 
 const updateChart = () => {
-  if (!chartInstance || !props.data) return
+  if (!chartInstance) return
+  
+  // 数据为空时清空图表（切换到无数据月份时显示空白）
+  if (!props.data || props.data.length === 0) {
+    chartInstance.clear()
+    return
+  }
+
+  // 动态计算数据的最小值和最大值，确保热力图颜色有区分度
+  const values = props.data.map(item => item[2])
+  const dataMin = Math.min(...values)
+  const dataMax = Math.max(...values)
 
   const option = {
     tooltip: {
@@ -51,8 +62,8 @@ const updateChart = () => {
       axisLine: { show: false }
     },
     visualMap: {
-      min: 0,
-      max: 100,
+      min: dataMin,
+      max: dataMax,
       calculable: true,
       orient: 'horizontal',
       left: 'center',

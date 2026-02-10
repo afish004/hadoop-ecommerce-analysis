@@ -1,20 +1,63 @@
 // src/api/service.js
+// 真实后端API调用（替换Mock数据）
 
-import {
-  dashboardData,
-  generateDynamicTrend, // 引入新写的函数
-  conversionData,
-  productData,
-  userInsightData,
-  predictionData
-} from './mockData.js'
+import axios from 'axios'
 
-function mockRequest(data, delay = 200) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({ code: 200, message: 'success', data: data })
-    }, delay)
-  })
+// 创建axios实例
+const api = axios.create({
+  baseURL: 'http://localhost:8000/api',
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+})
+
+// 请求拦截器：添加Token
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+  },
+  (error) => {
+    return Promise.reject(error)
+  }
+)
+
+// 响应拦截器：处理响应
+api.interceptors.response.use(
+  (response) => {
+    return response.data
+  },
+  (error) => {
+    // 如果401未授权，清除token并跳转登录
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('token')
+      localStorage.removeItem('currentUser')
+      window.location.href = '/login'
+    }
+    return Promise.reject(error)
+  }
+)
+
+// ==================== 认证 API ====================
+
+/**
+ * 用户注册
+ * @param {Object} userData - {username, email, password}
+ */
+export function register(userData) {
+  return api.post('/auth/register', userData)
+}
+
+/**
+ * 用户登录
+ * @param {Object} userData - {username, password}
+ */
+export function login(userData) {
+  return api.post('/auth/login', userData)
 }
 
 // ==================== Dashboard API ====================
@@ -25,29 +68,36 @@ function mockRequest(data, delay = 200) {
  * @param {string} endDate - YYYY-MM-DD
  */
 export function fetchDashboardData(startDate, endDate) {
-  // 1. 获取基础数据
-  const responseData = { ...dashboardData }
-  
-  // 2. 如果传了日期，动态生成这段时间的趋势图
-  if (startDate && endDate) {
-    const dynamicTrend = generateDynamicTrend(startDate, endDate)
-    responseData.pvuvTrend = dynamicTrend // 覆盖原本的趋势数据
-    
-    // 简单模拟：根据天数动态计算总指标 (可选)
-    // 这样选3天和选30天，上面的数字卡片数值会不一样，更真实
-    const days = dynamicTrend.xAxis.length
-    responseData.metrics = {
-      gmv: Math.floor(days * 1500000 + Math.random() * 100000),
-      pv: Math.floor(days * 300000 + Math.random() * 50000),
-      uv: Math.floor(days * 50000 + Math.random() * 10000)
-    }
-  }
-  
-  return mockRequest(responseData)
+  const params = {}
+  if (startDate) params.start_date = startDate
+  if (endDate) params.end_date = endDate
+  return api.get('/data/dashboard', { params })
 }
 
-// ... 其他原有接口保持不变，请复制之前的 Conversion, Product 等接口 ...
-export function fetchConversionData() { return mockRequest(conversionData) }
-export function fetchProductData() { return mockRequest(productData) }
-export function fetchUserInsightData() { return mockRequest(userInsightData) }
-export function fetchPredictionData() { return mockRequest(predictionData) }
+/**
+ * 获取转化数据
+ */
+export function fetchConversionData() {
+  return api.get('/data/conversion')
+}
+
+/**
+ * 获取商品数据
+ */
+export function fetchProductData() {
+  return api.get('/data/product')
+}
+
+/**
+ * 获取用户洞察数据
+ */
+export function fetchUserInsightData() {
+  return api.get('/data/user-insight')
+}
+
+/**
+ * 获取预测数据
+ */
+export function fetchPredictionData() {
+  return api.get('/data/prediction')
+}

@@ -20,28 +20,47 @@
         </div>
         
         <div class="rfm-segments">
-          <div class="rfm-segment high-value">
-            <div class="segment-label">高价值用户</div>
-            <div class="segment-value">35%</div>
-            <div class="segment-desc">核心客户</div>
+          <div 
+            v-for="(segment, index) in rfmSegments" 
+            :key="segment.name"
+            class="rfm-segment"
+            :class="getSegmentClass(index)"
+          >
+            <div class="segment-label">{{ segment.name }}</div>
+            <div class="segment-value">{{ segment.percent }}</div>
+            <div class="segment-desc">{{ segment.count.toLocaleString() }} 人</div>
           </div>
-          
-          <div class="rfm-segment potential">
-            <div class="segment-label">潜力用户</div>
-            <div class="segment-value">28%</div>
-            <div class="segment-desc">可提升</div>
+        </div>
+        
+        <!-- RFM说明卡片 -->
+        <div class="rfm-info-cards">
+          <div class="info-card high-value">
+            <div class="info-icon">👑</div>
+            <div class="info-content">
+              <div class="info-title">高价值用户</div>
+              <div class="info-desc">近期购买频繁、消费金额高，是核心客户，需重点维护</div>
+            </div>
           </div>
-          
-          <div class="rfm-segment retain">
-            <div class="segment-label">挽留用户</div>
-            <div class="segment-value">22%</div>
-            <div class="segment-desc">需挽回</div>
+          <div class="info-card potential">
+            <div class="info-icon">🌱</div>
+            <div class="info-content">
+              <div class="info-title">潜力用户</div>
+              <div class="info-desc">有一定消费能力，购买频次较低，可通过活动提升活跃度</div>
+            </div>
           </div>
-          
-          <div class="rfm-segment churn">
-            <div class="segment-label">流失用户</div>
-            <div class="segment-value">15%</div>
-            <div class="segment-desc">低价值</div>
+          <div class="info-card retain">
+            <div class="info-icon">🔔</div>
+            <div class="info-content">
+              <div class="info-title">挽留用户</div>
+              <div class="info-desc">曾经活跃但近期消费减少，需通过优惠券等方式挽回</div>
+            </div>
+          </div>
+          <div class="info-card churn">
+            <div class="info-icon">💤</div>
+            <div class="info-content">
+              <div class="info-title">流失用户</div>
+              <div class="info-desc">长时间未购买、消费金额低，可考虑放弃或低成本唤醒</div>
+            </div>
           </div>
         </div>
       </div>
@@ -62,7 +81,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { fetchConversionData, fetchUserInsightData } from '@/api/service'
 import { User, Connection, Sort } from '@element-plus/icons-vue'
 import FunnelChart from '@/components/FunnelChart.vue'
@@ -76,6 +95,24 @@ const conversionData = ref({
   funnel: [],
   sankey: { nodes: [], links: [] }
 })
+
+// 计算RFM分层数据（带百分比）
+const rfmSegments = computed(() => {
+  const segmentation = userData.value.userSegmentation || []
+  const total = segmentation.reduce((sum, item) => sum + (item.value || 0), 0)
+  
+  return segmentation.map(item => ({
+    name: item.name,
+    count: item.value || 0,
+    percent: total > 0 ? ((item.value / total) * 100).toFixed(1) + '%' : '0%'
+  }))
+})
+
+// 获取分层样式类（根据索引循环使用颜色）
+const getSegmentClass = (index) => {
+  const classes = ['high-value', 'potential', 'retain', 'churn']
+  return classes[index % classes.length]
+}
 
 const loadData = async () => {
   try {
@@ -358,6 +395,76 @@ onMounted(() => {
         font-weight: 600;
         position: relative;
         z-index: 1;
+      }
+    }
+  }
+  
+  // RFM说明卡片样式
+  .rfm-info-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px dashed rgba(107, 101, 96, 0.2);
+    
+    @media (max-width: 1024px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    @media (max-width: 576px) {
+      grid-template-columns: 1fr;
+    }
+    
+    .info-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.5);
+      border: 1px solid rgba(107, 101, 96, 0.1);
+      transition: all 0.3s ease;
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+      
+      &.high-value {
+        border-left: 3px solid $primary-color;
+      }
+      
+      &.potential {
+        border-left: 3px solid $success-color;
+      }
+      
+      &.retain {
+        border-left: 3px solid $warning-color;
+      }
+      
+      &.churn {
+        border-left: 3px solid $error-color;
+      }
+      
+      .info-icon {
+        font-size: 20px;
+        flex-shrink: 0;
+      }
+      
+      .info-content {
+        .info-title {
+          font-size: 13px;
+          font-weight: 700;
+          color: $text-primary;
+          margin-bottom: 4px;
+        }
+        
+        .info-desc {
+          font-size: 12px;
+          color: $text-secondary;
+          line-height: 1.5;
+        }
       }
     }
   }

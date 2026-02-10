@@ -95,6 +95,7 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { login } from '@/api/service.js'
 
 // ==================== 路由实例 ====================
 const router = useRouter()
@@ -142,29 +143,34 @@ const loading = ref(false)
 const handleLogin = async () => {
   if (!loginFormRef.value) return
   
-  await loginFormRef.value.validate((valid) => {
+  await loginFormRef.value.validate(async (valid) => {
     if (valid) {
       loading.value = true
       
-      setTimeout(() => {
-        // 从 localStorage 获取已注册用户
-        const users = JSON.parse(localStorage.getItem('users') || '[]')
-        const user = users.find(u => u.username === loginForm.username && u.password === loginForm.password)
+      try {
+        // 调用后端登录API
+        const res = await login({
+          username: loginForm.username,
+          password: loginForm.password
+        })
         
-        if (user) {
-          // 登录成功
-          localStorage.setItem('token', 'token-' + Date.now())
-          localStorage.setItem('currentUser', JSON.stringify(user))
+        if (res.code === 200) {
+          // 登录成功，保存Token和用户信息
+          localStorage.setItem('token', res.data.token)
+          localStorage.setItem('currentUser', JSON.stringify(res.data.user))
           
           ElMessage.success('登录成功！')
           router.push('/ops-dashboard')
         } else {
           // 登录失败
-          ElMessage.error('用户名或密码错误！')
+          ElMessage.error(res.message || '用户名或密码错误！')
         }
-        
+      } catch (error) {
+        console.error('登录失败:', error)
+        ElMessage.error('登录失败，请检查网络连接或后端服务是否启动')
+      } finally {
         loading.value = false
-      }, 800)
+      }
     }
   })
 }

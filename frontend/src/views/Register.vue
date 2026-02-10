@@ -132,6 +132,7 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { register } from '@/api/service.js'
 
 // ==================== 路由实例 ====================
 const router = useRouter()
@@ -209,71 +210,40 @@ const loading = ref(false)
 
 /**
  * 处理用户注册
- * 
- * 注册流程：
- * 1. 验证表单数据
- * 2. 检查用户名是否已存在
- * 3. 检查邮箱是否已被注册
- * 4. 保存新用户到 localStorage
- * 5. 跳转到登录页面
- * 
- * @async
- * @returns {Promise<void>}
- * 
- * @example
- * // 用户填写表单后点击"创建账号"按钮
- * handleRegister()
  */
 const handleRegister = async () => {
   if (!registerFormRef.value) return
   
-  await registerFormRef.value.validate((valid) => {
+  await registerFormRef.value.validate(async (valid) => {
     if (valid) {
       loading.value = true
       
-      // 模拟网络请求延迟（800ms）
-      setTimeout(() => {
-        // 获取已注册用户列表
-        const users = JSON.parse(localStorage.getItem('users') || '[]')
+      try {
+        // 调用后端注册API
+        const res = await register({
+          username: registerForm.name,
+          email: registerForm.email,
+          password: registerForm.password
+        })
         
-        // 检查用户名是否已存在
-        const existingUser = users.find(u => u.username === registerForm.name)
-        if (existingUser) {
-          ElMessage.error('用户名已存在，请更换！')
-          loading.value = false
-          return
+        if (res.code === 200) {
+          // 注册成功
+          ElMessage.success('注册成功！即将跳转到登录页面...')
+          
+          // 2秒后跳转到登录页
+          setTimeout(() => {
+            router.push('/login')
+          }, 2000)
+        } else {
+          // 注册失败
+          ElMessage.error(res.message || '注册失败')
         }
-        
-        // 检查邮箱是否已存在
-        const existingEmail = users.find(u => u.email === registerForm.email)
-        if (existingEmail) {
-          ElMessage.error('邮箱已被注册，请更换！')
-          loading.value = false
-          return
-        }
-        
-        // 创建新用户对象
-        const newUser = {
-          username: registerForm.name,      // 用户名（使用姓名作为用户名）
-          email: registerForm.email,        // 邮箱
-          password: registerForm.password,  // 密码（⚠️ 生产环境需加密）
-          createdAt: new Date().toISOString() // 注册时间
-        }
-        
-        // 保存新用户到 localStorage
-        users.push(newUser)
-        localStorage.setItem('users', JSON.stringify(users))
-        
-        // 显示成功消息
-        ElMessage.success('注册成功！即将跳转到登录页面...')
-        
-        // 2秒后跳转到登录页
-        setTimeout(() => {
-          router.push('/login')
-        }, 2000)
-        
+      } catch (error) {
+        console.error('注册失败:', error)
+        ElMessage.error('注册失败，请检查网络连接或后端服务是否启动')
+      } finally {
         loading.value = false
-      }, 800)
+      }
     }
   })
 }
